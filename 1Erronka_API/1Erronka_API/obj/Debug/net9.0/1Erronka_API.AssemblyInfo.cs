@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("1Erronka_API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+06060f755f298295f1f095d9e2af436bd7ad5c8b")]
 [assembly: System.Reflection.AssemblyProductAttribute("1Erronka_API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("1Erronka_API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
