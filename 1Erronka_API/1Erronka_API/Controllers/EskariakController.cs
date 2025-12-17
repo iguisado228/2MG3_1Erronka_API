@@ -49,13 +49,28 @@ namespace _1Erronka_API.Controllers
                     Produktua = produktua,
                     Kantitatea = p.Kantitatea,
                     Prezioa = p.Prezioa
+
                 });
             }
 
             _repo.Add(eskaria);
-            return Ok(new { mezua = "Eskaria sortuta", eskariaId = eskaria.Id });
-        }
 
+            var erantzuna = new
+            {
+                EskariaId = eskaria.Id,
+                PrezioaTotala = eskaria.Produktuak.Sum(p => p.Prezioa * p.Kantitatea),
+                Produktuak = eskaria.Produktuak.Select(p => new
+                {
+                    ProduktuaIzena = p.Produktua.Izena,
+                    Kantitatea = p.Kantitatea,
+                    ProduktuakPrezioaBakarka = p.Prezioa,
+                    ProduktuakPrezioaGuztira = p.Prezioa * p.Kantitatea
+
+                }).ToList()
+            };
+
+            return Ok(erantzuna);
+        }
 
         [HttpGet("{id}")]
         public IActionResult GetEskaria(int id)

@@ -16,9 +16,10 @@ namespace _1Erronka_API.Mapeoak
             Id(x => x.Id).GeneratedBy.Identity();
             Map(x => x.Izena);
             Map(x => x.Erabiltzaile_izena);
+            Map(x => x.Langile_kodea);
             Map(x => x.Pasahitza);
             Map(x => x.Gerentea);
-            Map(x => x.TpvSarrera);
+            Map(x => x.TpvSarrera).Column("tpv_sarrera");
         }
     }
 }
