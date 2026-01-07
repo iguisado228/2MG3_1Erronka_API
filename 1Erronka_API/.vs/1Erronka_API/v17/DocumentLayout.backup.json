@@ -1,7 +1,16 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\irait\\Documents\\2MG3\\1Erronka\\2MG3_1Erronka_API\\1Erronka_API\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{17120138-E4A6-4C3D-84BD-F577B7BA9385}|1Erronka_API\\Erronka1Api.csproj|c:\\users\\irait\\documents\\2mg3\\1erronka\\2mg3_1erronka_api\\1erronka_api\\1erronka_api\\dtoak\\eskariadto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{17120138-E4A6-4C3D-84BD-F577B7BA9385}|1Erronka_API\\Erronka1Api.csproj|solutionrelative:1erronka_api\\dtoak\\eskariadto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{17120138-E4A6-4C3D-84BD-F577B7BA9385}|1Erronka_API\\Erronka1Api.csproj|c:\\users\\irait\\documents\\2mg3\\1erronka\\2mg3_1erronka_api\\1erronka_api\\1erronka_api\\controllers\\eskariakcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{17120138-E4A6-4C3D-84BD-F577B7BA9385}|1Erronka_API\\Erronka1Api.csproj|solutionrelative:1erronka_api\\controllers\\eskariakcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +18,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -38,6 +47,32 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "EskariaDto.cs",
+              "DocumentMoniker": "C:\\Users\\irait\\Documents\\2MG3\\1Erronka\\2MG3_1Erronka_API\\1Erronka_API\\1Erronka_API\\DTOak\\EskariaDto.cs",
+              "RelativeDocumentMoniker": "1Erronka_API\\DTOak\\EskariaDto.cs",
+              "ToolTip": "C:\\Users\\irait\\Documents\\2MG3\\1Erronka\\2MG3_1Erronka_API\\1Erronka_API\\1Erronka_API\\DTOak\\EskariaDto.cs*",
+              "RelativeToolTip": "1Erronka_API\\DTOak\\EskariaDto.cs*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAABKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-07T13:20:39.493Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "EskariakController.cs",
+              "DocumentMoniker": "C:\\Users\\irait\\Documents\\2MG3\\1Erronka\\2MG3_1Erronka_API\\1Erronka_API\\1Erronka_API\\Controllers\\EskariakController.cs",
+              "RelativeDocumentMoniker": "1Erronka_API\\Controllers\\EskariakController.cs",
+              "ToolTip": "C:\\Users\\irait\\Documents\\2MG3\\1Erronka\\2MG3_1Erronka_API\\1Erronka_API\\1Erronka_API\\Controllers\\EskariakController.cs",
+              "RelativeToolTip": "1Erronka_API\\Controllers\\EskariakController.cs",
+              "ViewState": "AgIAAHgAAAAAAAAAAAD4v4kAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-07T13:19:50.537Z",
+              "EditorCaption": ""
             }
           ]
         },

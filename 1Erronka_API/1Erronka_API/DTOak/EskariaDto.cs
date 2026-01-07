@@ -6,6 +6,7 @@
         public double Prezioa { get; set; }
         public string Egoera { get; set; } = string.Empty;
         public int ErreserbaId { get; set; }
+        public int MahaiaZenbakia { get; set; }
         public List<EskariaProduktuaDto> Produktuak { get; set; } = new();
     }
 

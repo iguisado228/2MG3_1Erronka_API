@@ -118,5 +118,60 @@ namespace _1Erronka_API.Controllers
 
             return Ok(dtoList);
         }
+
+
+        [HttpGet]
+        public IActionResult GetEskariak()
+        {
+            var eskariak = _repo.GetAll().ToList();
+
+            var dtoList = eskariak.Select(e => new EskariaDto
+            {
+                Id = e.Id,
+                Prezioa = e.Prezioa,
+                Egoera = e.Egoera,
+                ErreserbaId = e.Erreserba.Id,
+
+                MahaiaZenbakia = e.Erreserba.Mahaia.Zenbakia,
+
+                Produktuak = e.Produktuak.Select(p => new EskariaProduktuaDto
+                {
+                    ProduktuaId = p.Produktua.Id,
+                    ProduktuaIzena = p.Produktua.Izena,
+                    Kantitatea = p.Kantitatea,
+                    Prezioa = p.Prezioa
+                }).ToList()
+            }).ToList();
+
+            return Ok(dtoList);
+        }
+
+
+
+        [HttpGet("egoera/{egoera}")]
+        public IActionResult GetEskariakByEgoera(string egoera)
+        {
+            var eskariak = _repo.GetAll()
+                .Where(e => e.Egoera.Equals(egoera, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            var dtoList = eskariak.Select(e => new EskariaDto
+            {
+                Id = e.Id,
+                Prezioa = e.Prezioa,
+                Egoera = e.Egoera,
+                ErreserbaId = e.Erreserba.Id,
+                Produktuak = e.Produktuak.Select(p => new EskariaProduktuaDto
+                {
+                    ProduktuaId = p.Produktua.Id,
+                    ProduktuaIzena = p.Produktua.Izena,
+                    Kantitatea = p.Kantitatea,
+                    Prezioa = p.Prezioa
+                }).ToList()
+            }).ToList();
+
+            return Ok(dtoList);
+        }
+
     }
 }
