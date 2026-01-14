@@ -10,6 +10,7 @@ namespace _1Erronka_API.Modeloak
         public virtual int PertsonaKopurua { get; set; }
         public virtual DateTime EgunaOrdua { get; set; }
         public virtual double PrezioTotala { get; set; }
+        public virtual int Ordainduta { get; set; } = 0;
         public virtual string FakturaRuta { get; set; }
         public virtual Langilea Langilea { get; set; }
         public virtual Mahaia Mahaia { get; set; }

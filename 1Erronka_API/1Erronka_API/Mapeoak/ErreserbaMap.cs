@@ -15,6 +15,7 @@ namespace _1Erronka_API.Mapeoak
             Map(x => x.PertsonaKopurua).Column("pertsona_kopurua");
             Map(x => x.EgunaOrdua).Column("eguna_ordua");
             Map(x => x.PrezioTotala).Column("prezio_totala");
+            Map(x => x.Ordainduta).Column("ordainduta");
             Map(x => x.FakturaRuta).Column("faktura_ruta");
             References(x => x.Langilea).Column("langileak_id").Not.Nullable();
             References(x => x.Mahaia).Column("mahaiak_id").Not.Nullable();

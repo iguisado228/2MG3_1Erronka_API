@@ -17,7 +17,6 @@ namespace _1Erronka_API
             return SessionFactory.OpenSession();
         }
 
-
         public static ISessionFactory SessionFactory =>
             _sessionFactory ??= CreateSessionFactory();
 
@@ -25,8 +24,7 @@ namespace _1Erronka_API
         {
             var config = Fluently.Configure()
                 .Database(MySQLConfiguration.Standard
-                .ConnectionString("Server=localhost;Port=3306;Database=2mg3_1erronka;Uid=root;Pwd=1MG2024;"))
-                //.ConnectionString("Server=192.168.2.100;Port=3306;Database=2mg3_1erronka;Uid=3taldea;Pwd=1234;"))
+                .ConnectionString("Server=192.168.1.112;Port=3306;Database=2mg3_1erronka;Uid=3Taldea;Pwd=2MG3_3Taldea3;"))
                 .Mappings(m =>
                 {
                     m.FluentMappings.AddFromAssembly(typeof(NHibernateHelper).Assembly);
@@ -39,9 +37,8 @@ namespace _1Erronka_API
 
             dbEguneratu(config);
 
-            return config.BuildSessionFactory();
+                return config.BuildSessionFactory();
         }
-
 
         public static void dbEguneratu(NHibernate.Cfg.Configuration config)
         {
@@ -50,9 +47,6 @@ namespace _1Erronka_API
             SchemaUpdate schemaUpdate = new SchemaUpdate(config);
             schemaUpdate.Execute(false, true);
 
-        }
-
-        
-        
+        }       
     }
 }

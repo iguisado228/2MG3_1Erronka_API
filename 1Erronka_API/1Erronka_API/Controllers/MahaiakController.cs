@@ -25,7 +25,7 @@ namespace _1Erronka_API.Controllers
             {
                 Id = m.Id,
                 Zenbakia = m.Zenbakia,
-                PertsonaKopuru = m.PertsonaKopuru,
+                PertsonaKopurua = m.PertsonaKopurua,
                 Kokapena = m.Kokapena
             }).ToList();
 

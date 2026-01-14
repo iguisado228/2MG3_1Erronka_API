@@ -30,6 +30,7 @@ namespace _1Erronka_API.Controllers
                 PertsonaKopurua = e.PertsonaKopurua,
                 EgunaOrdua = e.EgunaOrdua,
                 PrezioTotala = e.PrezioTotala,
+                Ordainduta = e.Ordainduta,
                 FakturaRuta = e.FakturaRuta,
                 LangileaId = e.Langilea.Id,
                 MahaiakId = e.Mahaia.Id
@@ -47,7 +48,7 @@ namespace _1Erronka_API.Controllers
                 BezeroIzena = dto.BezeroIzena,
                 Telefonoa = dto.Telefonoa,
                 PertsonaKopurua = dto.PertsonaKopurua,
-                EgunaOrdua = dto.EgunaOrdua, // fecha + hora
+                EgunaOrdua = dto.EgunaOrdua, 
                 PrezioTotala = dto.PrezioTotala,
                 FakturaRuta = dto.FakturaRuta,
                 Langilea = new Langilea { Id = dto.LangileaId },
@@ -58,5 +59,26 @@ namespace _1Erronka_API.Controllers
             _repo.Add(erreserba);
             return Ok(new { mezua = "Erreserba sortuta", erreserbaId = erreserba.Id });
         }
+
+        [HttpPost("ordaindu")]
+        public IActionResult Ordaindu([FromBody] ErreserbaOrdainduDto dto)
+        {
+            // Buscar la reserva en el repositorio
+            var erreserba = _repo.GetAll().FirstOrDefault(e => e.Id == dto.ErreserbaId);
+            if (erreserba == null)
+                return NotFound();
+
+            // Actualizar campos
+            erreserba.Ordainduta = 1;
+            erreserba.PrezioTotala = dto.Guztira;
+            erreserba.FakturaRuta = ""; // si luego generas factura
+            erreserba.Langilea = new Langilea { Id = dto.LangileaId };
+
+            // Guardar cambios
+            _repo.Update(erreserba);
+
+            return Ok();
+        }
+
     }
 }

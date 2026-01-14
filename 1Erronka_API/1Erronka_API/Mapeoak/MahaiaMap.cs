@@ -11,7 +11,7 @@ namespace _1Erronka_API.Mapeoak
 
             Id(x => x.Id).Column("id").GeneratedBy.Identity();
             Map(x => x.Zenbakia).Column("zenbakia");
-            Map(x => x.PertsonaKopuru).Column("pertsona_kopuru");
+            Map(x => x.PertsonaKopurua).Column("pertsona_kopurua");
             Map(x => x.Kokapena).Column("kokapena");
         }
     }
