@@ -170,5 +170,21 @@ namespace _1Erronka_API.Controllers
 
             return fakturaRuta;
         }
+
+        [HttpGet("tiket/{id}")]
+        public IActionResult DeskargatuTicket(int id)
+        {
+            var erreserba = _repo.GetAll().FirstOrDefault(e => e.Id == id);
+            if (erreserba == null || string.IsNullOrEmpty(erreserba.FakturaRuta))
+                return NotFound("Ez da tiketa aurkitu.");
+
+            string rutaAbsoluta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", erreserba.FakturaRuta.TrimStart('/'));
+
+            if (!System.IO.File.Exists(rutaAbsoluta))
+                return NotFound("PDF fitxategia ez da existitzen.");
+
+            var fileBytes = System.IO.File.ReadAllBytes(rutaAbsoluta);
+            return File(fileBytes, "application/pdf", $"ticket_{id}.pdf");
+        }
     }
 }
