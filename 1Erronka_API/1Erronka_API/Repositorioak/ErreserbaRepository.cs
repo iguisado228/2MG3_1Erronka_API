@@ -1,5 +1,8 @@
-﻿using NHibernate;
+﻿using _1Erronka_API.DTOak;
 using _1Erronka_API.Modeloak;
+using NHibernate;
+using ISession = NHibernate.ISession;
+
 
 namespace _1Erronka_API.Repositorioak
 {
@@ -47,5 +50,33 @@ namespace _1Erronka_API.Repositorioak
             session.Delete(erreserba);
             tx.Commit();
         }
+
+        public List<EskariaProduktuaDto> LortuProduktuakErreserbarako(int erreserbaId)
+        {
+            using var session = _sessionFactory.OpenSession();
+
+            var eskariak = session.Query<Eskaria>()
+                .Where(e => e.Erreserba.Id == erreserbaId)
+                .ToList();
+
+            var produktuak = eskariak
+                .SelectMany(e => e.Produktuak)
+                .Select(p => new EskariaProduktuaDto
+                {
+                    ProduktuaIzena = p.Produktua.Izena,
+                    Prezioa = p.Prezioa,
+                    Kantitatea = p.Kantitatea
+                })
+                .ToList();
+
+            return produktuak;
+        }
+
+        public ISession OpenSession()
+        {
+            return _sessionFactory.OpenSession();
+        }
+
+
     }
 }
