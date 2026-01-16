@@ -22,5 +22,19 @@ namespace _1Erronka_API.Repositorioak
             _session.Save(mahaia);
             tx.Commit();
         }
+
+        public void Update(Mahaia mahaia)
+        {
+            using var tx = _session.BeginTransaction();
+            _session.Update(mahaia);
+            tx.Commit();
+        }
+        public void Delete(Mahaia mahaia)
+        {
+            using var tx = _session.BeginTransaction();
+            _session.Delete(mahaia);
+            tx.Commit();
+        }
+
     }
 }

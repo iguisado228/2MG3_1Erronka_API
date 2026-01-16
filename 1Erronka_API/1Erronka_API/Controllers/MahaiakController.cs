@@ -31,5 +31,51 @@ namespace _1Erronka_API.Controllers
 
             return Ok(dtoList);
         }
+
+        [HttpPost]
+        public IActionResult Create([FromBody] MahaiaDto dto)
+        {
+            var mahaia = new Mahaia
+            {
+                Zenbakia = dto.Zenbakia,
+                PertsonaKopurua = dto.PertsonaKopurua,
+                Kokapena = dto.Kokapena ?? ""
+            };
+
+            _repo.Add(mahaia);
+
+            return Ok();
+            Console.WriteLine($"Zenbakia: {dto.Zenbakia}, PertsonaKopurua: {dto.PertsonaKopurua}, Kokapena: {dto.Kokapena}");
+        }
+
+
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, [FromBody] MahaiaDto dto)
+        {
+            var mahaia = _repo.Get(id);
+            if (mahaia == null)
+                return NotFound();
+
+            mahaia.Zenbakia = dto.Zenbakia;
+            mahaia.PertsonaKopurua = dto.PertsonaKopurua;
+            mahaia.Kokapena = dto.Kokapena;
+
+            _repo.Update(mahaia);
+
+            return Ok();
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            var mahaia = _repo.Get(id);
+            if (mahaia == null)
+                return NotFound();
+
+            _repo.Delete(mahaia);
+
+            return Ok();
+        }
+
     }
 }
