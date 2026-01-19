@@ -35,6 +35,9 @@ builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddTransient<ProduktuaRepository>();
     builder.Services.AddTransient<EskariaRepository>();
     builder.Services.AddTransient<MahaiaRepository>();
+    builder.Services.AddScoped<OsagaiaRepository>();
+    builder.Services.AddScoped<ProduktuaOsagaiaRepository>();
+
 
 
 

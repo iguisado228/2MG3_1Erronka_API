@@ -17,5 +17,11 @@ namespace _1Erronka_API.Repositorioak
             _session.Query<Produktua>().FirstOrDefault(x => x.Id == id);
 
         public IList<Produktua> GetAll() => _session.Query<Produktua>().ToList();
+
+        public void Update(Produktua produktua)
+        {
+            _session.Update(produktua); _session.Flush();
+        }
+
     }
 }

@@ -5,6 +5,8 @@
         public virtual Produktua Produktua { get; set; }
         public virtual Osagaia Osagaia { get; set; }
 
+        public virtual int Kantitatea { get; set; } 
+
         public override bool Equals(object? obj)
         {
             if (obj == null || GetType() != obj.GetType()) return false;

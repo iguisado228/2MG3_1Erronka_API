@@ -12,12 +12,17 @@ namespace _1Erronka_API.Controllers
         private readonly EskariaRepository _repo;
         private readonly ProduktuaRepository _produktuaRepo;
         private readonly ErreserbaRepository _erreserbaRepo;
+        private readonly ProduktuaOsagaiaRepository _produktuaOsagaiaRepo;
+        private readonly OsagaiaRepository _osagaiaRepo;
 
-        public EskariakController(EskariaRepository repo, ProduktuaRepository produktuaRepo, ErreserbaRepository erreserbaRepo)
+
+        public EskariakController(EskariaRepository repo, ProduktuaRepository produktuaRepo, ErreserbaRepository erreserbaRepo, ProduktuaOsagaiaRepository produktuOsagaiaRepo, OsagaiaRepository osagaiaRepo)
         {
             _repo = repo;
             _produktuaRepo = produktuaRepo;
             _erreserbaRepo = erreserbaRepo;
+            _produktuaOsagaiaRepo = produktuOsagaiaRepo;
+            _osagaiaRepo = osagaiaRepo;
         }
 
         [HttpPost]
@@ -43,15 +48,38 @@ namespace _1Erronka_API.Controllers
                 var produktua = _produktuaRepo.Get(p.ProduktuaId);
                 if (produktua == null) continue;
 
+                var osagaiak = _produktuaOsagaiaRepo.GetByProduktuaId(produktua.Id);
+
+                foreach (var po in osagaiak)
+                {
+                    var osagaia = po.Osagaia;
+                    var kantitateaTotala = po.Kantitatea * p.Kantitatea;
+
+                    if (osagaia.Stock < kantitateaTotala)
+                        return BadRequest($"Ez dago nahikoa stock '{osagaia.Izena}' osagaian");
+                }
+
+                foreach (var po in osagaiak)
+                {
+                    var osagaia = po.Osagaia;
+                    var kantitateaTotala = po.Kantitatea * p.Kantitatea;
+
+                    osagaia.Stock -= kantitateaTotala;
+                    _osagaiaRepo.Update(osagaia);
+                }
+
+                produktua.Stock -= p.Kantitatea;
+                _produktuaRepo.Update(produktua);
+
                 eskaria.Produktuak.Add(new EskariaProduktua
                 {
                     Eskaria = eskaria,
                     Produktua = produktua,
                     Kantitatea = p.Kantitatea,
                     Prezioa = p.Prezioa
-
                 });
             }
+
 
             _repo.Add(eskaria);
 
@@ -65,12 +93,12 @@ namespace _1Erronka_API.Controllers
                     Kantitatea = p.Kantitatea,
                     ProduktuakPrezioaBakarka = p.Prezioa,
                     ProduktuakPrezioaGuztira = p.Prezioa * p.Kantitatea
-
                 }).ToList()
             };
 
             return Ok(erantzuna);
         }
+
 
         [HttpGet("{id}")]
         public IActionResult GetEskaria(int id)

@@ -12,6 +12,8 @@ namespace _1Erronka_API.Mapeoak
             CompositeId()
                 .KeyReference(x => x.Produktua, "produktuak_id")
                 .KeyReference(x => x.Osagaia, "osagaiak_id");
+
+            Map(x => x.Kantitatea).Column("kantitatea").Not.Nullable();
         }
     }
 }

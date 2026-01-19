@@ -17,5 +17,10 @@ namespace _1Erronka_API.Repositorioak
             _session.Query<Osagaia>().FirstOrDefault(x => x.Id == id);
 
         public IList<Osagaia> GetAll() => _session.Query<Osagaia>().ToList();
+
+        public void Update(Osagaia osagaia)
+        {
+            _session.Update(osagaia);
+        }
     }
 }
