@@ -1,4 +1,4 @@
-﻿using _1Erronka_API.Domain;
+using _1Erronka_API.Domain;
 using _1Erronka_API.DTOak;
 using _1Erronka_API.Modeloak;
 using _1Erronka_API.Repositorioak;
@@ -108,8 +108,9 @@ namespace _1Erronka_API.Controllers
             string root = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "tiketak");
             Directory.CreateDirectory(root);
 
-            string pdfPath = Path.Combine(root, $"tiket_{erreserba.Id}.pdf");
-            string fakturaRuta = $"/tiketak/tiket_{erreserba.Id}.pdf";
+            string izenFitxategia = $"Tiket_Erreserba_{erreserba.Id}.pdf";
+            string pdfPath = Path.Combine(root, izenFitxategia);
+            string fakturaRuta = $"/tiketak/{izenFitxategia}";
 
             using (var writer = new PdfWriter(pdfPath))
             using (var pdf = new PdfDocument(writer))
@@ -184,7 +185,11 @@ namespace _1Erronka_API.Controllers
                 return NotFound("PDF fitxategia ez da existitzen.");
 
             var fileBytes = System.IO.File.ReadAllBytes(rutaAbsoluta);
-            Response.Headers["Content-Disposition"] = $"inline; filename=ticket_{id}.pdf";
+            
+            // Izen berria behartu, nahiz eta diskoan beste izen bat izan (zaharrak adibidez)
+            string izenFitxategia = $"Tiket_Erreserba_{id}.pdf";
+            Response.Headers["Content-Disposition"] = $"inline; filename={izenFitxategia}";
+            
             return File(fileBytes, "application/pdf");
         }
     }
