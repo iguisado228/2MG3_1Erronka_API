@@ -184,7 +184,8 @@ namespace _1Erronka_API.Controllers
                 return NotFound("PDF fitxategia ez da existitzen.");
 
             var fileBytes = System.IO.File.ReadAllBytes(rutaAbsoluta);
-            return File(fileBytes, "application/pdf", $"ticket_{id}.pdf");
+            Response.Headers["Content-Disposition"] = $"inline; filename=ticket_{id}.pdf";
+            return File(fileBytes, "application/pdf");
         }
     }
 }
