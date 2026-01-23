@@ -1,4 +1,4 @@
-﻿namespace _1Erronka_API.DTOak
+namespace _1Erronka_API.DTOak
 {
     public class ErreserbaDto
     {
@@ -11,6 +11,7 @@
         public int Ordainduta { get; set; } = 0;
         public string FakturaRuta { get; set; }
         public int LangileaId { get; set; }
+        public string LangileaIzena { get; set; }
         public int MahaiakId { get; set; }
     }
 

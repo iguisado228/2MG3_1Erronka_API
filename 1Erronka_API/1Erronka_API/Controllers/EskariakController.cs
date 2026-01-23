@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using _1Erronka_API.Repositorioak;
 using _1Erronka_API.DTOak;
 using _1Erronka_API.Modeloak;
@@ -28,73 +28,93 @@ namespace _1Erronka_API.Controllers
         [HttpPost]
         public IActionResult Sortu([FromBody] EskariaSortuDto dto)
         {
-            var erreserba = _erreserbaRepo.Get(dto.ErreserbaId);
-            if (erreserba == null) return NotFound("Erreserba ez da aurkitu");
+            object erantzuna = null;
 
-            if (erreserba.Langilea == null) return BadRequest("Erreserbak ez du langilerik asignatuta");
-
-            var eskaria = new Eskaria
+            try
             {
-                Erreserba = erreserba,
-                Prezioa = dto.Prezioa,
-                Egoera = dto.Egoera,
-                Langilea = erreserba.Langilea,
-                Mahaia = erreserba.Mahaia,
-                Produktuak = new List<EskariaProduktua>()
-            };
-
-            foreach (var p in dto.Produktuak)
-            {
-                var produktua = _produktuaRepo.Get(p.ProduktuaId);
-                if (produktua == null) continue;
-
-                var osagaiak = _produktuaOsagaiaRepo.GetByProduktuaId(produktua.Id);
-
-                foreach (var po in osagaiak)
+                _repo.ExecuteSerializableTransaction(() =>
                 {
-                    var osagaia = po.Osagaia;
-                    var kantitateaTotala = po.Kantitatea * p.Kantitatea;
+                    var erreserba = _erreserbaRepo.Get(dto.ErreserbaId);
+                    if (erreserba == null) throw new Exception("Erreserba ez da aurkitu");
 
-                    if (osagaia.Stock < kantitateaTotala)
-                        return BadRequest($"Ez dago nahikoa stock '{osagaia.Izena}' osagaian");
-                }
+                    if (erreserba.Langilea == null) throw new Exception("Erreserbak ez du langilerik asignatuta");
 
-                foreach (var po in osagaiak)
-                {
-                    var osagaia = po.Osagaia;
-                    var kantitateaTotala = po.Kantitatea * p.Kantitatea;
+                    var eskaria = new Eskaria
+                    {
+                        Erreserba = erreserba,
+                        Prezioa = dto.Prezioa,
+                        Egoera = dto.Egoera,
+                        Langilea = erreserba.Langilea,
+                        Mahaia = erreserba.Mahaia,
+                        Produktuak = new List<EskariaProduktua>()
+                    };
 
-                    osagaia.Stock -= kantitateaTotala;
-                    _osagaiaRepo.Update(osagaia);
-                }
+                    foreach (var p in dto.Produktuak)
+                    {
+                        var produktua = _produktuaRepo.Get(p.ProduktuaId);
+                        if (produktua == null) continue;
 
-                produktua.Stock -= p.Kantitatea;
-                _produktuaRepo.Update(produktua);
+                        if (produktua.Stock <= 0)
+                            throw new Exception($"Ez dago stock-ik '{produktua.Izena}' produktuan.");
 
-                eskaria.Produktuak.Add(new EskariaProduktua
-                {
-                    Eskaria = eskaria,
-                    Produktua = produktua,
-                    Kantitatea = p.Kantitatea,
-                    Prezioa = p.Prezioa
+                        if (produktua.Stock < p.Kantitatea)
+                        {
+                            p.Kantitatea = produktua.Stock;
+                        }
+
+                        var osagaiak = _produktuaOsagaiaRepo.GetByProduktuaId(produktua.Id);
+
+                        foreach (var po in osagaiak)
+                        {
+                            var osagaia = po.Osagaia;
+                            var kantitateaTotala = po.Kantitatea * p.Kantitatea;
+
+                            if (osagaia.Stock < kantitateaTotala)
+                                throw new Exception($"Ez dago nahikoa stock '{osagaia.Izena}' osagaian");
+                        }
+
+                        foreach (var po in osagaiak)
+                        {
+                            var osagaia = po.Osagaia;
+                            var kantitateaTotala = po.Kantitatea * p.Kantitatea;
+
+                            osagaia.Stock -= kantitateaTotala;
+                            _osagaiaRepo.Update(osagaia);
+                        }
+
+                        produktua.Stock -= p.Kantitatea;
+                        _produktuaRepo.Update(produktua);
+
+                        eskaria.Produktuak.Add(new EskariaProduktua
+                        {
+                            Eskaria = eskaria,
+                            Produktua = produktua,
+                            Kantitatea = p.Kantitatea,
+                            Prezioa = produktua.Prezioa
+                        });
+                    }
+
+                    eskaria.Prezioa = eskaria.Produktuak.Sum(p => p.Prezioa * p.Kantitatea);
+                    _repo.Add(eskaria);
+
+                    erantzuna = new
+                    {
+                        EskariaId = eskaria.Id,
+                        PrezioaTotala = eskaria.Produktuak.Sum(p => p.Prezioa * p.Kantitatea),
+                        Produktuak = eskaria.Produktuak.Select(p => new
+                        {
+                            ProduktuaIzena = p.Produktua.Izena,
+                            Kantitatea = p.Kantitatea,
+                            ProduktuakPrezioaBakarka = p.Prezioa,
+                            ProduktuakPrezioaGuztira = p.Prezioa * p.Kantitatea
+                        }).ToList()
+                    };
                 });
             }
-
-
-            _repo.Add(eskaria);
-
-            var erantzuna = new
+            catch (Exception ex)
             {
-                EskariaId = eskaria.Id,
-                PrezioaTotala = eskaria.Produktuak.Sum(p => p.Prezioa * p.Kantitatea),
-                Produktuak = eskaria.Produktuak.Select(p => new
-                {
-                    ProduktuaIzena = p.Produktua.Izena,
-                    Kantitatea = p.Kantitatea,
-                    ProduktuakPrezioaBakarka = p.Prezioa,
-                    ProduktuakPrezioaGuztira = p.Prezioa * p.Kantitatea
-                }).ToList()
-            };
+                return BadRequest(ex.Message);
+            }
 
             return Ok(erantzuna);
         }

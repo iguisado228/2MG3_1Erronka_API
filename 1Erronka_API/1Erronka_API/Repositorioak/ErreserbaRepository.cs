@@ -1,6 +1,7 @@
 ﻿using _1Erronka_API.DTOak;
 using _1Erronka_API.Modeloak;
 using NHibernate;
+using NHibernate.Linq;
 using ISession = NHibernate.ISession;
 
 
@@ -8,54 +9,71 @@ namespace _1Erronka_API.Repositorioak
 {
     public class ErreserbaRepository
     {
-        private readonly ISessionFactory _sessionFactory;
+        private readonly ISession _session;
 
         public ErreserbaRepository(ISessionFactory sessionFactory)
         {
-            _sessionFactory = sessionFactory;
+            _session = sessionFactory.GetCurrentSession();
         }
 
         public IList<Erreserba> GetAll()
         {
-            using var session = _sessionFactory.OpenSession();
-            return session.Query<Erreserba>().ToList();
+            return _session.Query<Erreserba>()
+                .Fetch(x => x.Langilea)
+                .Fetch(x => x.Mahaia)
+                .ToList();
         }
 
         public Erreserba? Get(int id)
         {
-            using var session = _sessionFactory.OpenSession();
-            return session.Query<Erreserba>().FirstOrDefault(x => x.Id == id);
+            return _session.Query<Erreserba>().FirstOrDefault(x => x.Id == id);
         }
 
         public void Add(Erreserba erreserba)
         {
-            using var session = _sessionFactory.OpenSession();
-            using var tx = session.BeginTransaction();
-            session.Save(erreserba);
-            tx.Commit();
+            if (_session.Transaction != null && _session.Transaction.IsActive)
+            {
+                _session.Save(erreserba);
+            }
+            else
+            {
+                using var tx = _session.BeginTransaction();
+                _session.Save(erreserba);
+                tx.Commit();
+            }
         }
 
         public void Update(Erreserba erreserba)
         {
-            using var session = _sessionFactory.OpenSession();
-            using var tx = session.BeginTransaction();
-            session.Update(erreserba);
-            tx.Commit();
+            if (_session.Transaction != null && _session.Transaction.IsActive)
+            {
+                _session.Update(erreserba);
+            }
+            else
+            {
+                using var tx = _session.BeginTransaction();
+                _session.Update(erreserba);
+                tx.Commit();
+            }
         }
 
         public void Delete(Erreserba erreserba)
         {
-            using var session = _sessionFactory.OpenSession();
-            using var tx = session.BeginTransaction();
-            session.Delete(erreserba);
-            tx.Commit();
+            if (_session.Transaction != null && _session.Transaction.IsActive)
+            {
+                _session.Delete(erreserba);
+            }
+            else
+            {
+                using var tx = _session.BeginTransaction();
+                _session.Delete(erreserba);
+                tx.Commit();
+            }
         }
 
         public List<EskariaProduktuaDto> LortuProduktuakErreserbarako(int erreserbaId)
         {
-            using var session = _sessionFactory.OpenSession();
-
-            var eskariak = session.Query<Eskaria>()
+            var eskariak = _session.Query<Eskaria>()
                 .Where(e => e.Erreserba.Id == erreserbaId)
                 .ToList();
 
@@ -74,7 +92,7 @@ namespace _1Erronka_API.Repositorioak
 
         public ISession OpenSession()
         {
-            return _sessionFactory.OpenSession();
+            return _session.SessionFactory.OpenSession();
         }
 
 

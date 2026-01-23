@@ -41,6 +41,7 @@ namespace _1Erronka_API.Controllers
                 Ordainduta = e.Ordainduta,
                 FakturaRuta = e.FakturaRuta,
                 LangileaId = e.Langilea.Id,
+                LangileaIzena = e.Langilea.Izena,
                 MahaiakId = e.Mahaia.Id
             }).ToList();
 
@@ -65,6 +66,25 @@ namespace _1Erronka_API.Controllers
             _repo.Add(erreserba);
             return Ok(new { mezua = "Erreserba sortuta", erreserbaId = erreserba.Id });
         }
+
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, [FromBody] ErreserbaSortuDto dto)
+        {
+            var erreserba = _repo.Get(id);
+            if (erreserba == null) return NotFound();
+
+            erreserba.BezeroIzena = dto.BezeroIzena;
+            erreserba.Telefonoa = dto.Telefonoa;
+            erreserba.PertsonaKopurua = dto.PertsonaKopurua;
+            erreserba.EgunaOrdua = dto.EgunaOrdua;
+            
+            // Mahaia eguneratu
+            erreserba.Mahaia = new Mahaia { Id = dto.MahaiakId };
+            
+            _repo.Update(erreserba);
+            return Ok();
+        }
+
 
 
         [HttpPost("ordaindu")]
