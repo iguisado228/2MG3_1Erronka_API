@@ -32,6 +32,34 @@ namespace _1Erronka_API.Repositorioak
             }
         }
 
+        public void Update(Eskaria eskaria)
+        {
+            if (_session.Transaction != null && _session.Transaction.IsActive)
+            {
+                _session.Update(eskaria);
+            }
+            else
+            {
+                using var tx = _session.BeginTransaction();
+                _session.Update(eskaria);
+                tx.Commit();
+            }
+        }
+
+        public void Delete(Eskaria eskaria)
+        {
+            if (_session.Transaction != null && _session.Transaction.IsActive)
+            {
+                _session.Delete(eskaria);
+            }
+            else
+            {
+                using var tx = _session.BeginTransaction();
+                _session.Delete(eskaria);
+                tx.Commit();
+            }
+        }
+
         public void ExecuteSerializableTransaction(Action action)
         {
             using var tx = _session.BeginTransaction(System.Data.IsolationLevel.Serializable);
