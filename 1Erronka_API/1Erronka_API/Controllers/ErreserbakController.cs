@@ -19,10 +19,18 @@ namespace _1Erronka_API.Controllers
     public class ErreserbakController : ControllerBase
     {
         private readonly ErreserbaRepository _repo;
+        private readonly EskariaRepository _eskariaRepo;
+        private readonly ProduktuaRepository _produktuaRepo;
+        private readonly ProduktuaOsagaiaRepository _produktuaOsagaiaRepo;
+        private readonly OsagaiaRepository _osagaiaRepo;
 
-        public ErreserbakController(ErreserbaRepository repo)
+        public ErreserbakController(ErreserbaRepository repo, EskariaRepository eskariaRepo, ProduktuaRepository produktuaRepo, ProduktuaOsagaiaRepository produktuaOsagaiaRepo, OsagaiaRepository osagaiaRepo)
         {
             _repo = repo;
+            _eskariaRepo = eskariaRepo;
+            _produktuaRepo = produktuaRepo;
+            _produktuaOsagaiaRepo = produktuaOsagaiaRepo;
+            _osagaiaRepo = osagaiaRepo;
         }
 
         [HttpGet]
@@ -201,6 +209,51 @@ namespace _1Erronka_API.Controllers
             return fakturaRuta;
         }
 
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                _repo.ExecuteSerializableTransaction(() =>
+                {
+                    var erreserba = _repo.Get(id);
+                    if (erreserba == null) throw new Exception("Erreserba ez da aurkitu");
+
+                    var eskariak = _eskariaRepo.GetAll().Where(e => e.Erreserba.Id == id).ToList();
+
+                    foreach (var eskaria in eskariak)
+                    {
+                        foreach (var p in eskaria.Produktuak)
+                        {
+                            var produktua = _produktuaRepo.Get(p.Produktua.Id);
+                            if (produktua != null)
+                            {
+                                produktua.Stock += p.Kantitatea;
+                                _produktuaRepo.Update(produktua);
+
+                                var osagaiak = _produktuaOsagaiaRepo.GetByProduktuaId(produktua.Id);
+                                foreach (var po in osagaiak)
+                                {
+                                    po.Osagaia.Stock += po.Kantitatea * p.Kantitatea;
+                                    _osagaiaRepo.Update(po.Osagaia);
+                                }
+                            }
+                        }
+
+                        _eskariaRepo.Delete(eskaria);
+                    }
+
+                    _repo.Delete(erreserba);
+                });
+
+                return Ok(true);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpGet("tiket/{id}")]
         public IActionResult DeskargatuTicket(int id)
         {
@@ -215,7 +268,6 @@ namespace _1Erronka_API.Controllers
 
             var fileBytes = System.IO.File.ReadAllBytes(rutaAbsoluta);
             
-            // Izen berria behartu, nahiz eta diskoan beste izen bat izan (zaharrak adibidez)
             string izenFitxategia = $"Tiket_Erreserba_{id}.pdf";
             Response.Headers["Content-Disposition"] = $"inline; filename={izenFitxategia}";
             

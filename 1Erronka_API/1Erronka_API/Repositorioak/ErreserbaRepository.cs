@@ -1,4 +1,4 @@
-﻿using _1Erronka_API.DTOak;
+using _1Erronka_API.DTOak;
 using _1Erronka_API.Modeloak;
 using NHibernate;
 using NHibernate.Linq;
@@ -95,6 +95,19 @@ namespace _1Erronka_API.Repositorioak
             return _session.SessionFactory.OpenSession();
         }
 
-
+        public void ExecuteSerializableTransaction(Action action)
+        {
+            using var tx = _session.BeginTransaction(System.Data.IsolationLevel.Serializable);
+            try
+            {
+                action();
+                tx.Commit();
+            }
+            catch
+            {
+                tx.Rollback();
+                throw;
+            }
+        }
     }
 }
