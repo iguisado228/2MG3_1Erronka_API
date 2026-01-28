@@ -151,94 +151,124 @@ namespace _1Erronka_API.Controllers
             string pdfPath = Path.Combine(root, izenFitxategia);
             string fakturaRuta = $"/tiketak/{izenFitxategia}";
 
+            float ticketWidth = 162;
+            float tempHeight = 10000;
+            float finalHeight = 842; 
+
+            using (var ms = new MemoryStream())
+            using (var writer = new PdfWriter(ms))
+            using (var pdf = new PdfDocument(writer))
+            using (var doc = new Document(pdf, new iText.Kernel.Geom.PageSize(ticketWidth, tempHeight)))
+            {
+                doc.SetMargins(10, 5, 5, 5);
+                GehituTicketEdukia(doc, erreserba, produktuak, jasotakoa, itzulia, ordainketaModua);
+                
+                var renderer = doc.GetRenderer();
+                if (renderer != null && renderer.GetCurrentArea() != null)
+                {
+                    float currentY = renderer.GetCurrentArea().GetBBox().GetTop();
+                    finalHeight = (tempHeight - currentY) + 5; 
+                }
+            }
+
             using (var writer = new PdfWriter(pdfPath))
             using (var pdf = new PdfDocument(writer))
             {
-                var ticketSize = new iText.Kernel.Geom.PageSize(162, 842);
+                var ticketSize = new iText.Kernel.Geom.PageSize(ticketWidth, finalHeight);
                 
                 using (var doc = new Document(pdf, ticketSize))
                 {
-                    doc.SetMargins(10, 5, 10, 5);
-                    
-                    var boldFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
-                    var regularFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
-
-                    doc.Add(new Paragraph("TXAPELA JATETXEA")
-                        .SetFont(boldFont)
-                        .SetFontSize(12)
-                        .SetTextAlignment(TextAlignment.CENTER)
-                        .SetMarginBottom(0));
-
-                    doc.Add(new Paragraph("CIF: B12345678\nLazkao\nTel: 943 000 000")
-                        .SetFont(regularFont)
-                        .SetFontSize(8)
-                        .SetTextAlignment(TextAlignment.CENTER)
-                        .SetMarginBottom(5));
-
-                    doc.Add(new Paragraph($"Tiket: {erreserba.Id}\nData: {DateTime.Now:dd/MM/yyyy HH:mm}\nLangilea: {erreserba.Langilea.Izena}")
-                        .SetFont(regularFont)
-                        .SetFontSize(8)
-                        .SetMarginBottom(5));
-                        
-                    doc.Add(new LineSeparator(new iText.Kernel.Pdf.Canvas.Draw.DashedLine()).SetMarginTop(5).SetMarginBottom(5));
-
-                    Table table = new Table(UnitValue.CreatePercentArray(new float[] { 1, 4, 2, 2 })).UseAllAvailableWidth();
-                    table.SetFontSize(8);
-                    
-                    table.AddHeaderCell(new Cell().Add(new Paragraph("Kop").SetFont(boldFont)).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
-                    table.AddHeaderCell(new Cell().Add(new Paragraph("Prod").SetFont(boldFont)).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
-                    table.AddHeaderCell(new Cell().Add(new Paragraph("Ud.").SetFont(boldFont)).SetBorder(iText.Layout.Borders.Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT));
-                    table.AddHeaderCell(new Cell().Add(new Paragraph("Tot").SetFont(boldFont)).SetBorder(iText.Layout.Borders.Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT));
-
-                    foreach (var p in produktuak)
-                    {
-                        double lineTotal = p.Kantitatea * p.Prezioa;
-                        table.AddCell(new Cell().Add(new Paragraph(p.Kantitatea.ToString())).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
-                        table.AddCell(new Cell().Add(new Paragraph(p.ProduktuaIzena)).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
-                        table.AddCell(new Cell().Add(new Paragraph($"{p.Prezioa:0.00}")).SetBorder(iText.Layout.Borders.Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT));
-                        table.AddCell(new Cell().Add(new Paragraph($"{lineTotal:0.00}")).SetBorder(iText.Layout.Borders.Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT));
-                    }
-
-                    doc.Add(table);
-                    
-                    doc.Add(new LineSeparator(new iText.Kernel.Pdf.Canvas.Draw.DashedLine()).SetMarginTop(5).SetMarginBottom(5));
-
-                    double subtotal = produktuak.Sum(p => p.Kantitatea * p.Prezioa);
-                    double iva = subtotal * 0.10;
-                    double guztira = subtotal + iva;
-
-                    doc.Add(new Paragraph($"Subtotala: {subtotal:0.00}\nIVA (10%): {iva:0.00}")
-                        .SetFont(regularFont)
-                        .SetFontSize(8)
-                        .SetTextAlignment(TextAlignment.RIGHT));
-                        
-                    doc.Add(new Paragraph($"GUZTIRA: {guztira:0.00} €")
-                        .SetFont(boldFont)
-                        .SetFontSize(12)
-                        .SetTextAlignment(TextAlignment.RIGHT)
-                        .SetMarginTop(2));
-
-                    doc.Add(new LineSeparator(new iText.Kernel.Pdf.Canvas.Draw.DashedLine()).SetMarginTop(5).SetMarginBottom(5));
-
-                    doc.Add(new Paragraph($"Modua: {ordainketaModua}")
-                        .SetFont(regularFont)
-                        .SetFontSize(8));
-
-                    if (ordainketaModua == "Eskudirua")
-                    {
-                        doc.Add(new Paragraph($"Jasotakoa: {jasotakoa:0.00}\nItzulia: {itzulia:0.00}")
-                            .SetFont(regularFont)
-                            .SetFontSize(8));
-                    }
-
-                    doc.Add(new Paragraph("\nEskerrik asko!")
-                        .SetFont(boldFont)
-                        .SetFontSize(10)
-                        .SetTextAlignment(TextAlignment.CENTER));
+                    doc.SetMargins(10, 5, 5, 5);
+                    GehituTicketEdukia(doc, erreserba, produktuak, jasotakoa, itzulia, ordainketaModua);
                 }
             }
 
             return fakturaRuta;
+        }
+
+        private void GehituTicketEdukia(
+            Document doc, 
+            Erreserba erreserba,
+            List<EskariaProduktuaDto> produktuak,
+            double jasotakoa,
+            double itzulia,
+            string ordainketaModua)
+        {
+            var boldFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+            var regularFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+
+            doc.Add(new Paragraph("TXAPELA JATETXEA")
+                .SetFont(boldFont)
+                .SetFontSize(12)
+                .SetTextAlignment(TextAlignment.CENTER)
+                .SetMarginBottom(0));
+
+            doc.Add(new Paragraph("CIF: B12345678\nLazkao\nTel: 943 623 081")
+                .SetFont(regularFont)
+                .SetFontSize(8)
+                .SetTextAlignment(TextAlignment.CENTER)
+                .SetMarginBottom(5));
+
+            doc.Add(new Paragraph($"Tiket: {erreserba.Id}\nData: {DateTime.Now:dd/MM/yyyy HH:mm}\nLangilea: {erreserba.Langilea.Izena}")
+                .SetFont(regularFont)
+                .SetFontSize(8)
+                .SetMarginBottom(5));
+                
+            doc.Add(new LineSeparator(new iText.Kernel.Pdf.Canvas.Draw.DashedLine()).SetMarginTop(5).SetMarginBottom(5));
+
+            Table table = new Table(UnitValue.CreatePercentArray(new float[] { 1, 4, 2, 2 })).UseAllAvailableWidth();
+            table.SetFontSize(8);
+            
+            table.AddHeaderCell(new Cell().Add(new Paragraph("Kop").SetFont(boldFont)).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
+            table.AddHeaderCell(new Cell().Add(new Paragraph("Prod").SetFont(boldFont)).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
+            table.AddHeaderCell(new Cell().Add(new Paragraph("Ud.").SetFont(boldFont)).SetBorder(iText.Layout.Borders.Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT));
+            table.AddHeaderCell(new Cell().Add(new Paragraph("Tot").SetFont(boldFont)).SetBorder(iText.Layout.Borders.Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT));
+
+            foreach (var p in produktuak)
+            {
+                double lineTotal = p.Kantitatea * p.Prezioa;
+                table.AddCell(new Cell().Add(new Paragraph(p.Kantitatea.ToString())).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
+                table.AddCell(new Cell().Add(new Paragraph(p.ProduktuaIzena)).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
+                table.AddCell(new Cell().Add(new Paragraph($"{p.Prezioa:0.00}")).SetBorder(iText.Layout.Borders.Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT));
+                table.AddCell(new Cell().Add(new Paragraph($"{lineTotal:0.00}")).SetBorder(iText.Layout.Borders.Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT));
+            }
+
+            doc.Add(table);
+            
+            doc.Add(new LineSeparator(new iText.Kernel.Pdf.Canvas.Draw.DashedLine()).SetMarginTop(5).SetMarginBottom(5));
+
+            double subtotal = produktuak.Sum(p => p.Kantitatea * p.Prezioa);
+            double iva = subtotal * 0.10;
+            double guztira = subtotal + iva;
+
+            doc.Add(new Paragraph($"Subtotala: {subtotal:0.00}\nIVA (10%): {iva:0.00}")
+                .SetFont(regularFont)
+                .SetFontSize(8)
+                .SetTextAlignment(TextAlignment.RIGHT));
+                
+            doc.Add(new Paragraph($"GUZTIRA: {guztira:0.00} €")
+                .SetFont(boldFont)
+                .SetFontSize(12)
+                .SetTextAlignment(TextAlignment.RIGHT)
+                .SetMarginTop(2));
+
+            doc.Add(new LineSeparator(new iText.Kernel.Pdf.Canvas.Draw.DashedLine()).SetMarginTop(5).SetMarginBottom(5));
+
+            doc.Add(new Paragraph($"Modua: {ordainketaModua}")
+                .SetFont(regularFont)
+                .SetFontSize(8));
+
+            if (ordainketaModua == "Eskudirua")
+            {
+                doc.Add(new Paragraph($"Jasotakoa: {jasotakoa:0.00}\nItzulia: {itzulia:0.00}")
+                    .SetFont(regularFont)
+                    .SetFontSize(8));
+            }
+
+            doc.Add(new Paragraph("\nEskerrik asko!")
+                .SetFont(boldFont)
+                .SetFontSize(10)
+                .SetTextAlignment(TextAlignment.CENTER));
         }
 
         [HttpDelete("{id}")]
